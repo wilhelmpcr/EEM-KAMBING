@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PegawaiController;
+
 
 
 Route::get('/', function () {
@@ -29,3 +31,5 @@ Route::get('/mahasiswa/{param1}', [MahasiswaController::class, 'show'])->name('u
 Route::get('/about', function () {
     return view('halaman-about');
 });
+
+route::get ('/blade',[PegawaiController::class,'index']);
