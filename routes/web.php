@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\QuestionController;
 
 
 
@@ -33,3 +34,11 @@ Route::get('/about', function () {
 });
 
 route::get ('/blade',[PegawaiController::class,'index']);
+
+
+Route::post('question/store', [QuestionController::class, 'store'])
+		->name('question.store');
+
+
+route::get ('/home',[HomeController::class,'index']);
+
