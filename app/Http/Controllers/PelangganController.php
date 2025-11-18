@@ -9,10 +9,18 @@ class PelangganController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data['dataPelanggan'] = Pelanggan::paginate(10);
-        return view('admin.pelanggan.index', $data);
+        $filterableColumns     = ['gender'];
+
+$searchTableColumns = ['first_name'];
+
+       $pageData['dataPelanggan'] = Pelanggan::filter($request, $filterableColumns)
+    ->search($request, $searchTableColumns)
+    ->paginate(10)
+    ->withQueryString();
+        return view('admin.pelanggan.index', $pageData);
+
     }
 
     /**
@@ -53,11 +61,11 @@ class PelangganController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-  public function edit(string $id)
-{
-    $data['dataPelanggan'] = Pelanggan::findOrFail($id);
-    return view('admin.pelanggan.edit', $data);
-}
+    public function edit(string $id)
+    {
+        $data['dataPelanggan'] = Pelanggan::findOrFail($id);
+        return view('admin.pelanggan.edit', $data);
+    }
 
     /**
      * Update the specified resource in storage.
@@ -84,9 +92,9 @@ class PelangganController extends Controller
      */
     public function destroy(string $id)
     {
-         $pelanggan = Pelanggan::findOrFail($id);
+        $pelanggan = Pelanggan::findOrFail($id);
 
-    $pelanggan->delete();
-    return redirect()->route('pelanggan.index')->with('success', 'Data berhasil dihapus');
+        $pelanggan->delete();
+        return redirect()->route('pelanggan.index')->with('success', 'Data berhasil dihapus');
     }
 }
