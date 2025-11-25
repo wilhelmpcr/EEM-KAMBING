@@ -12,7 +12,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $data['dataUser'] = User::all();
+        $data['dataUser'] = user::all();
         return view('admin.user.index', $data);
     }
 
@@ -29,15 +29,27 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-        $data['name']     = $request->name;
-        $data['email']    = $request->email;
-        $data['password'] = $request->password;
-        $data['password'] = Hash::make($request->password);
+        $request->validate([
+            'name'            => 'required',
+            'email'           => 'required|email|unique:users,email',
+            'password'        => 'required|min:6',
+            'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $data = [
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+        ];
+
+        // Upload Foto - PERBAIKI INI
+        if ($request->hasFile('profile_picture')) {
+            $data['profile_picture'] = $request->file('profile_picture')->store('profile_pictures', 'public');
+        }
 
         User::create($data);
 
-        return redirect()->route('user.index')->with('success', 'Perubahan Data Berhasil');
+        return redirect()->route('user.index')->with('success', 'Penambahan Data Berhasil!');
     }
 
     /**
@@ -53,32 +65,61 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        $data['dataUser'] = User::findOrFail($id);
+        $data['dataUser'] = user::findOrFail($id);
         return view('admin.user.edit', $data);
+
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    // app/Http/Controllers/UserController.php - Update method
+    public function update(Request $request, User $user)
     {
-        $user_id   = $id;
-        $pelanggan = Pelanggan::findOrFail($pelanggan_id);
+        $data = $request->validate([
+            'name'            => 'required|string',
+            'email'           => 'required|email|unique:users,email,' . $user->id,
+            'password'        => 'nullable|min:6|confirmed',
+            'profile_picture' => 'nullable|image|max:2048',
+            'remove_photo'    => 'nullable',
+        ]);
 
-        $user->name  = $request->name;
-        $user->email = $request->email;
-        $user->phone = $request->phone;
+        // Handle hapus foto
+        if ($request->has('remove_photo')) {
+            if ($user->profile_picture && \Illuminate\Support\Facades\Storage::exists('public/' . $user->profile_picture)) {
+                \Illuminate\Support\Facades\Storage::delete('public/' . $user->profile_picture);
+            }
+            $data['profile_picture'] = null;
+        }
 
-        $user->save();
+        // Handle upload foto baru
+        if ($request->hasFile('profile_picture')) {
+            // Hapus file lama jika ada
+            if ($user->profile_picture && \Illuminate\Support\Facades\Storage::exists('public/' . $user->profile_picture)) {
+                \Illuminate\Support\Facades\Storage::delete('public/' . $user->profile_picture);
+            }
+            $data['profile_picture'] = $request->file('profile_picture')->store('profile_pictures', 'public');
+        }
 
-        return redirect()->route('user.index')->with('success', 'Perubahan Data Berhasil');
+        // Update password jika diisi
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        } else {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('user.index')->with('success', 'User berhasil diperbarui.');
     }
-
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        { $user = user::findOrFail($id);
+
+            $user->delete();
+            return redirect()->route('user.index')->with('succes', 'Perubahan Data Dihapus');}
     }
 }

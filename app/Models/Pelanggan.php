@@ -16,6 +16,14 @@ class Pelanggan extends Model
         'email',
         'phone',
     ];
+
+    // TAMBAHKAN RELASI KE MULTIPLEUPLOADS
+    public function files()
+    {
+        return $this->hasMany(MultipleUpload::class, 'ref_id', 'pelanggan_id')
+            ->where('ref_table', 'pelanggan');
+    }
+
     public function scopeFilter(Builder $query, $request, array $filterableColumns): Builder
     {
         foreach ($filterableColumns as $column) {
@@ -25,14 +33,15 @@ class Pelanggan extends Model
         }
         return $query;
     }
+
     public function scopeSearch($query, $request, array $columns)
-{
-    if ($request->filled('search')) {
-        $query->where(function($q) use ($request, $columns) {
-            foreach ($columns as $column) {
-                $q->orWhere($column, 'LIKE', '%' . $request->search . '%');
-            }
-        });
+    {
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request, $columns) {
+                foreach ($columns as $column) {
+                    $q->orWhere($column, 'LIKE', '%' . $request->search . '%');
+                }
+            });
+        }
     }
-}
 }

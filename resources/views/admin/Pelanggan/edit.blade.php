@@ -1,111 +1,195 @@
 @extends('layouts.admin.app')
+
 @section('content')
-{{-- Start Main Content --}}
-<div class="py-4">
-            <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
-                <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
-                    <li class="breadcrumb-item">
-                        <a href="#">
-                            <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-                                </path>
-                            </svg>
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item"><a href="#">Pelanggan</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Tambah Pelanggan</li>
-                </ol>
-            </nav>
-            <div class="d-flex justify-content-between w-100 flex-wrap">
-                <div class="mb-3 mb-lg-0">
-                    <h1 class="h4">Edit Pelanggan</h1>
-                    <p class="mb-0">Form untuk menambahkan data pelanggan baru.</p>
-                </div>
-                <div>
-                    <a href="{{ route('dashboard') }}" class="btn btn-primary"><i
-                            class="far fa-question-circle me-1"></i> Kembali</a>
-                </div>
+    <div class="py-4">
+        <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+            <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+                <li class="breadcrumb-item"><a href="{{ route('pelanggan.index') }}">Pelanggan</a></li>
+                <li class="breadcrumb-item active">Edit Pelanggan</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between w-100 flex-wrap">
+            <div class="mb-3 mb-lg-0">
+                <h1 class="h4">Edit Pelanggan</h1>
+                <p class="mb-0">Form untuk mengedit data pelanggan</p>
+            </div>
+            <div>
+                <a href="{{ route('pelanggan.show', $dataPelanggan->pelanggan_id) }}" class="btn btn-info">
+                    <i class="fas fa-eye me-1"></i> Detail
+                </a>
+                <a href="{{ route('pelanggan.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali
+                </a>
             </div>
         </div>
+    </div>
 
-        @if (session('success'))
-        <div class="alert alert-info">
-            {!! session('success') !!}
-        </div>
-        @endif
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <form action="{{ route('pelanggan.update', $dataPelanggan->pelanggan_id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
 
-        <div class="row">
-            <div class="col-12 mb-4">
-                <div class="card border-0 shadow components-section">
-                    <div class="card-body">
-                        <form action="{{ route('pelanggan.update', $dataPelanggan->pelanggan_id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-                            <div class="row mb-4">
-                                <div class="col-lg-4 col-sm-6">
-                                    <!-- First Name -->
-                                    <div class="mb-3">
-                                        <label for="first_name" class="form-label">First name</label>
-                                        <input type="text" id="first_name" class="form-control" required
-                                            name ="first_name" value="{{ $dataPelanggan -> first_name}}">
+                        <div class="row">
+                            <!-- Data Pelanggan -->
+                            <div class="col-md-6">
+                                <h5 class="mb-4">Data Personal</h5>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="first_name" class="form-label">First Name</label>
+                                            <input type="text" id="first_name" name="first_name"
+                                                   class="form-control" value="{{ old('first_name', $dataPelanggan->first_name) }}" required>
+                                        </div>
                                     </div>
-
-                                    <!-- Last Name -->
-                                    <div class="mb-3">
-                                        <label for="last_name" class="form-label">Last name</label>
-                                        <input type="text" id="last_name" class="form-control" required
-                                            name ="last_name" value="{{ $dataPelanggan->last_name }}">
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-4 col-sm-6">
-                                    <!-- Birthday -->
-                                    <div class="mb-3">
-                                        <label for="birthday" class="form-label">Birthday</label>
-                                        <input type="date" id="birthday" class="form-control" name ="birthday" value="{{ $dataPelanggan->birthday }}">
-                                    </div>
-
-                                    <!-- Gender -->
-                                    <div class="mb-3">
-                                        <label for="gender" class="form-label">Gender</label>
-                                        <select class="form-select mb-0" id="gender" name="gender" aria-label="Gender select example">
-                                            <option selected>Gender</option>
-                                            <option value="Female" {{ $dataPelanggan->gender == 'Female' ? 'selected': ''}} >Female</option>
-                                            <option value="Male" {{ $dataPelanggan->gender == 'Male' ? 'selected': ''}} >Male</option>
-                                        </select>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="last_name" class="form-label">Last Name</label>
+                                            <input type="text" id="last_name" name="last_name"
+                                                   class="form-control" value="{{ old('last_name', $dataPelanggan->last_name) }}" required>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="col-lg-4 col-sm-12">
-                                    <!-- Email -->
-                                    <div class="mb-3">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input type="text" id="email" class="form-control" required
-                                            name ="email" value="{{ $dataPelanggan->email }}">
-                                    </div>
+                                <div class="mb-3">
+                                    <label for="birthday" class="form-label">Birthday</label>
+                                    <input type="date" id="birthday" name="birthday"
+                                           class="form-control" value="{{ old('birthday', $dataPelanggan->birthday) }}">
+                                </div>
 
-                                    <!-- Phone -->
-                                    <div class="mb-3">
-                                        <label for="phone" class="form-label">Phone</label>
-                                        <input type="text" id="phone" class="form-control" name ="phone"
-                                            value="{{ $dataPelanggan->phone }}">
-                                    </div>
+                                <div class="mb-3">
+                                    <label for="gender" class="form-label">Gender</label>
+                                    <select id="gender" name="gender" class="form-select">
+                                        <option value="">-- Pilih --</option>
+                                        <option value="Male" {{ old('gender', $dataPelanggan->gender) == 'Male' ? 'selected' : '' }}>Male</option>
+                                        <option value="Female" {{ old('gender', $dataPelanggan->gender) == 'Female' ? 'selected' : '' }}>Female</option>
+                                        <option value="Other" {{ old('gender', $dataPelanggan->gender) == 'Other' ? 'selected' : '' }}>Other</option>
+                                    </select>
+                                </div>
 
-                                    <!-- Buttons -->
-                                    <div class="">
-                                        <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ route('pelanggan.index') }}"
-                                            class="btn btn-outline-secondary ms-2">Batal</a>
-                                    </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" id="email" name="email"
+                                           class="form-control" value="{{ old('email', $dataPelanggan->email) }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone</label>
+                                    <input type="text" id="phone" name="phone"
+                                           class="form-control" value="{{ old('phone', $dataPelanggan->phone) }}">
                                 </div>
                             </div>
-                        </form>
-                    </div>
 
+                            <!-- File Upload Section -->
+                            <div class="col-md-6">
+                                <h5 class="mb-4">File Management</h5>
+
+                                <!-- Multiple File Upload -->
+                                <div class="mb-4">
+                                    <label for="files" class="form-label">Upload Files Baru (Multiple)</label>
+                                    <input type="file" id="files" name="files[]"
+                                           class="form-control" multiple
+                                           accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.txt">
+                                    <small class="text-muted">Format: JPG, PNG, PDF, DOC, TXT. Maksimal 2MB per file</small>
+                                </div>
+
+                                <!-- Existing Files -->
+                                <div class="mb-3">
+                                    <label class="form-label">Files Terupload</label>
+                                    @if($dataPelanggan->files->count() > 0)
+                                        <div class="row">
+                                            @foreach($dataPelanggan->files as $file)
+                                                <div class="col-12 mb-2">
+                                                    <div class="card file-card">
+                                                        <div class="card-body py-2">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <div class="d-flex align-items-center">
+                                                                    @if(in_array(pathinfo($file->filename, PATHINFO_EXTENSION), ['jpg','jpeg','png','gif']))
+                                                                        <img src="{{ asset('storage/' . $file->filename) }}"
+                                                                             class="rounded me-3"
+                                                                             style="width: 40px; height: 40px; object-fit: cover;">
+                                                                    @else
+                                                                        <i class="fas fa-file me-3 text-secondary" style="font-size: 1.5rem;"></i>
+                                                                    @endif
+                                                                    <div>
+                                                                        <small class="d-block fw-bold">{{ basename($file->filename) }}</small>
+                                                                        <small class="text-muted">{{ \Carbon\Carbon::parse($file->created_at)->format('d/m/Y H:i') }}</small>
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <a href="{{ asset('storage/' . $file->filename) }}"
+                                                                       target="_blank"
+                                                                       class="btn btn-sm btn-info me-1">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </a>
+                                                                    <a href="{{ asset('storage/' . $file->filename) }}"
+                                                                       download
+                                                                       class="btn btn-sm btn-success me-1">
+                                                                        <i class="fas fa-download"></i>
+                                                                    </a>
+                                                                    <button type="button"
+                                                                            class="btn btn-sm btn-danger"
+                                                                            onclick="deleteFile({{ $file->id }})">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <div class="alert alert-info py-2">
+                                            <i class="fas fa-info-circle me-2"></i> Belum ada files terupload.
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Update Data
+                            </button>
+                            <a href="{{ route('pelanggan.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i> Batal
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-{{-- End Main Content --}}
+    </div>
+
+    <!-- Delete File Form -->
+    <form id="deleteFileForm" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
+
+    <script>
+    function deleteFile(fileId) {
+        if(confirm('Yakin ingin menghapus file ini?')) {
+            const form = document.getElementById('deleteFileForm');
+            form.action = `/customer/file/${fileId}`;
+            form.submit();
+        }
+    }
+    </script>
+
+    <style>
+    .file-card {
+        transition: transform 0.2s;
+        border: 1px solid #e0e0e0;
+    }
+    .file-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    </style>
 @endsection

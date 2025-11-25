@@ -2,7 +2,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pelanggan;
+use App\Models\MultipleUpload;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PelangganController extends Controller
 {
@@ -11,16 +13,16 @@ class PelangganController extends Controller
      */
     public function index(Request $request)
     {
-        $filterableColumns     = ['gender'];
+        // Daftar kolom yang bisa di filter sesusai name pada form
+        $filterableColums = ['gender'];
 
-$searchTableColumns = ['first_name'];
+        $searchableColums = ['first_name'];
 
-       $pageData['dataPelanggan'] = Pelanggan::filter($request, $filterableColumns)
-    ->search($request, $searchTableColumns)
-    ->paginate(10)
-    ->withQueryString();
-        return view('admin.pelanggan.index', $pageData);
-
+        // Guana
+        $data['dataPelanggan'] = Pelanggan::filter($request, $filterableColums)
+        ->search($request, $searchableColums)
+        ->paginate(10)->withQueryString();
+        return view('admin.pelanggan.index', $data);
     }
 
     /**
@@ -45,7 +47,20 @@ $searchTableColumns = ['first_name'];
         $data['email']      = $request->email;
         $data['phone']      = $request->phone;
 
-        Pelanggan::create($data);
+        $pelanggan = Pelanggan::create($data);
+
+        // Handle multiple file upload
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                $filename = $file->store('pelanggan-files', 'public');
+
+                MultipleUpload::create([
+                    'filename' => $filename,
+                    'ref_table' => 'pelanggan',
+                    'ref_id' => $pelanggan->pelanggan_id
+                ]);
+            }
+        }
 
         return redirect()->route('pelanggan.index')->with('success', 'Penambahan Data Berhasil!');
     }
@@ -55,15 +70,16 @@ $searchTableColumns = ['first_name'];
      */
     public function show(string $id)
     {
-        //
+        $data['dataPelanggan'] = Pelanggan::with('files')->findOrFail($id);
+        return view('admin.pelanggan.show', $data);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     *  Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        $data['dataPelanggan'] = Pelanggan::findOrFail($id);
+        $data['dataPelanggan'] = Pelanggan::with('files')->findOrFail($id);
         return view('admin.pelanggan.edit', $data);
     }
 
@@ -84,7 +100,20 @@ $searchTableColumns = ['first_name'];
 
         $pelanggan->save();
 
-        return redirect()->route('pelanggan.index')->with('success', 'Perubahan Data Berhasil');
+        // Handle multiple file upload
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                $filename = $file->store('pelanggan-files', 'public');
+
+                MultipleUpload::create([
+                    'filename' => $filename,
+                    'ref_table' => 'pelanggan',
+                    'ref_id' => $pelanggan->pelanggan_id
+                ]);
+            }
+        }
+
+        return redirect()->route('pelanggan.index')->with('success', 'Perubahan Data Berhasil!');
     }
 
     /**
@@ -94,7 +123,31 @@ $searchTableColumns = ['first_name'];
     {
         $pelanggan = Pelanggan::findOrFail($id);
 
+        // Hapus file terkait
+        foreach ($pelanggan->files as $file) {
+            if (Storage::exists('public/' . $file->filename)) {
+                Storage::delete('public/' . $file->filename);
+            }
+            $file->delete();
+        }
+
         $pelanggan->delete();
-        return redirect()->route('pelanggan.index')->with('success', 'Data berhasil dihapus');
+        return redirect()->route('pelanggan.index')->with('success', 'Data Berhasil Dihapus!');
+    }
+
+    /**
+     * Delete single file
+     */
+    public function deleteFile(string $id)
+    {
+        $file = MultipleUpload::findOrFail($id);
+
+        if (Storage::exists('public/' . $file->filename)) {
+            Storage::delete('public/' . $file->filename);
+        }
+
+        $file->delete();
+
+        return redirect()->back()->with('success', 'File berhasil dihapus!');
     }
 }
